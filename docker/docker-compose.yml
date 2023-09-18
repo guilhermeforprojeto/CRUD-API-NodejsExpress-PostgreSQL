@@ -1,0 +1,26 @@
+version: "3"
+
+services:
+  postgres_testeapi:
+    image: postgres:latest
+    container_name: postgres_testeapi
+    environment:
+      POSTGRES_DB: testeAPI
+      POSTGRES_USER: guilherme
+      POSTGRES_PASSWORD: 123456a.
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/postgres_testeapi:/var/lib/postgresql/data
+
+  postgres_cadastrosacolas:
+    image: postgres:latest
+    container_name: postgres_cadastrosacolas
+    environment:
+      POSTGRES_DB: cadastrosacolas
+      POSTGRES_USER: guilherme
+      POSTGRES_PASSWORD: 123456a.
+    ports:
+      - "5433:5432"
+    volumes:
+      - ./home/guilherme/dev/CRUD-API-NodejsExpress-PostgreSQ/databin
