@@ -15,7 +15,7 @@ db.sequelize.sync().then(() => {
   console.log("Todas tabelas Dropadas e Resicronizado o banco");
 });
 var corsOptions = {
-  origin: "http://localhost:8081"
+  origin: "*"
 };
 
 app.use(cors(corsOptions));
@@ -83,42 +83,54 @@ app.post("/sacolas", (req, res) => {
     });
 });
 
-
-
-app.put("/sacolas/:id", (req, res) => {
+app.put("/sacolas/:id", async (req, res) => {
   const { id } = req.params;
   const { codigo, nome, conteudo, assistenteSocialId, frenteAssistidaId, assistidoId, doadorId } = req.body;
 
-  const sacolaIndex = sacolas.findIndex((sacola) => sacola.id === id);
+  try {
+    const sacola = await Sacola.findByPk(id);
 
-  if (sacolaIndex === -1) {
-    return res.status(404).json({ message: "Sacola não encontrada" });
+    if (!sacola) {
+      return res.status(404).json({ message: "Sacola não encontrada" });
+    }
+
+    // Atualize os campos da sacola
+    sacola.codigo = codigo;
+    sacola.nome = nome;
+    sacola.conteudo = conteudo;
+    sacola.assistenteSocialId = assistenteSocialId;
+    sacola.frenteAssistidaId = frenteAssistidaId;
+    sacola.assistidoId = assistidoId;
+    sacola.doadorId = doadorId;
+
+    await sacola.save();
+
+    return res.json({ message: "Sacola atualizada com sucesso", sacola });
+  } catch (error) {
+    console.error('Erro ao atualizar sacola:', error);
+    return res.status(500).json({ message: "Erro ao atualizar sacola" });
   }
-
-  // Garante que os campos não informados sejam preenchidos com strings vazias
-  const assistenteSocial = assistenteSocialId || "";
-  const frenteAssistida = frenteAssistidaId || "";
-  const assistido = assistidoId || "";
-  const doador = doadorId || "";
-
-  sacolas[sacolaIndex] = { id, codigo, nome, conteudo, assistenteSocial, frenteAssistida, assistido, doador };
-
-  res.json({ message: "Sacola atualizada com sucesso", sacola: sacolas[sacolaIndex] });
 });
 
 
 app.delete("/sacolas/:id", (req, res) => {
   const { id } = req.params;
 
-  const sacolaIndex = sacolas.findIndex((sacola) => sacola.id === id);
-
-  if (sacolaIndex === -1) {
-    return res.status(404).json({ message: "Sacola não encontrada" });
-  }
-
-  sacolas.splice(sacolaIndex, 1);
-
-  res.json({ message: "Sacola excluída com sucesso" });
+  // Use o método 'destroy' do Sequelize para excluir a sacola com o ID fornecido
+  Sacola.destroy({ where: { id } })
+    .then((rowsDeleted) => {
+      if (rowsDeleted === 1) {
+        // A sacola foi excluída com sucesso
+        res.json({ message: "Sacola excluída com sucesso" });
+      } else {
+        // Nenhuma sacola com o ID fornecido foi encontrada
+        res.status(404).json({ message: "Sacola não encontrada" });
+      }
+    })
+    .catch((error) => {
+      console.error("Erro ao excluir sacola:", error);
+      res.status(500).json({ message: "Erro ao excluir sacola" });
+    });
 });
 
 // Rotas para a entidade "Assistidos"
