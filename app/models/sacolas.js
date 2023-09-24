@@ -4,22 +4,31 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       unique: true, // Defina como único se o código deve ser único
     },
+    status: {
+      type: Sequelize.STRING,
+    },
+    nome: {
+      type: Sequelize.STRING,
+    },
     nome: {
       type: Sequelize.STRING,
     },
     conteudo: {
       type: Sequelize.STRING,
     },
-    assistenteSocialId: {
+    assistentesocial: {
       type: Sequelize.STRING,
     },
-    frenteAssistidaId: {
+    nomefrenteassistida: {
       type: Sequelize.STRING,
     },
-    assistidoId: {
+    assistido: {
       type: Sequelize.STRING,
     },
-    doadorId: {
+    doador: {
+      type: Sequelize.STRING,
+    },
+    obs: {
       type: Sequelize.STRING,
     },
   });
