@@ -10,12 +10,6 @@ module.exports = (sequelize, Sequelize) => {
     nome: {
       type: Sequelize.STRING,
     },
-    nome: {
-      type: Sequelize.STRING,
-    },
-    conteudo: {
-      type: Sequelize.STRING,
-    },
     assistentesocial: {
       type: Sequelize.STRING,
     },

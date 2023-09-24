@@ -56,7 +56,7 @@ app.get("/sacolas", (req, res) => {
 
 
 app.post("/sacolas", async (req, res) => {
-  const { codigo, status, nome, conteudo, assistentesocial, nomefrenteassistida, assistido, doador, obs } = req.body;
+  const { codigo, status, assistentesocial, nomefrenteassistida, assistido, doador, obs } = req.body;
 
   try {
     // Verifique se já existe uma sacola com o mesmo código
@@ -228,18 +228,26 @@ app.delete("/doadores/:id", (req, res) => {
 app.get("/frente-assistida", (req, res) => {
   res.json({ frenteAssistida });
 });
-
 app.post("/frente-assistida", (req, res) => {
-  const { nome, endereco } = req.body;
+  const { nome, assistidos } = req.body;
+
+  // Verifique se já existe uma Frente Assistida com o mesmo nome (sem distinção entre maiúsculas e minúsculas)
+  const frenteAssistidaExistente = frenteAssistida.find((frente) => frente.nome.toLowerCase() === nome.toLowerCase());
+
+  if (frenteAssistidaExistente) {
+    return res.status(400).json({ message: "Frente Assistida com o mesmo nome já existe." });
+  }
+
   const id = uuidv4(); // Gera um UUID único
-  const novaFrenteAssistida = { id, nome, endereco };
+  const novaFrenteAssistida = { id, nome, assistidos };
   frenteAssistida.push(novaFrenteAssistida);
   res.status(201).json({ message: "Frente Assistida criada com sucesso", frenteAssistida: novaFrenteAssistida });
 });
 
+
 app.put("/frente-assistida/:id", (req, res) => {
   const { id } = req.params;
-  const { nome, endereco } = req.body;
+  const { nome, assistidos } = req.body;
 
   const frenteAssistidaIndex = frenteAssistida.findIndex((frente) => frente.id === id);
 
@@ -247,10 +255,11 @@ app.put("/frente-assistida/:id", (req, res) => {
     return res.status(404).json({ message: "Frente Assistida não encontrada" });
   }
 
-  frenteAssistida[frenteAssistidaIndex] = { id, nome, endereco };
+  frenteAssistida[frenteAssistidaIndex] = { id, nome, assistidos };
 
   res.json({ message: "Frente Assistida atualizada com sucesso", frenteAssistida: frenteAssistida[frenteAssistidaIndex] });
 });
+
 
 app.delete("/frente-assistida/:id", (req, res) => {
   const { id } = req.params;
