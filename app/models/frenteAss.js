@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-  const Sacolas = sequelize.define("frente-assistida", {
+  const frenteAss = sequelize.define("frente-assistida", {
     nome: {
       type: Sequelize.STRING,
       unique: {
@@ -14,5 +14,5 @@ module.exports = (sequelize, Sequelize) => {
     },
   });
 
-  return Sacolas;
+  return frenteAss;
 };

@@ -7,13 +7,13 @@ const Sacola = db.sacolas
 const app = express();
 
 
-db.sequelize.sync({ force: true }).then(() => {
-  console.log("Todas tabelas Dropadas e Resicronizado o banco");
-});
-
-// db.sequelize.sync().then(() => {
-//   console.log("Tabelas mantidas");
+// db.sequelize.sync({ force: true }).then(() => {
+//   console.log("Todas tabelas Dropadas e Resicronizado o banco");
 // });
+
+db.sequelize.sync().then(() => {
+  console.log("Tabelas mantidas");
+});
 
 
 var corsOptions = {
@@ -63,15 +63,13 @@ app.post("/sacolas", async (req, res) => {
     const sacolaExistente = await Sacola.findOne({ where: { codigo } });
 
     if (sacolaExistente) {
-      return res.status(400).json({ message: "Código de sacola já existe" });
+      return res.status(400).json({ message: "Código " + codigo + " já foi cadastrado" });
     }
 
     // Crie uma nova instância do modelo Sacolas com os dados fornecidos
     const novaSacola = await Sacola.create({
       codigo,
       status,
-      nome,
-      conteudo,
       assistentesocial,
       nomefrenteassistida,
       assistido,
@@ -188,16 +186,16 @@ app.get("/doadores", (req, res) => {
 });
 
 app.post("/doadores", (req, res) => {
-  const { nome, email } = req.body;
+  const { nome, contato, sacolinhas } = req.body;
   const id = uuidv4(); // Gera um UUID único
-  const novoDoador = { id, nome, email };
+  const novoDoador = { id, nome, contato, sacolinhas };
   doadores.push(novoDoador);
   res.status(201).json({ message: "Doador criado com sucesso", doador: novoDoador });
 });
 
 app.put("/doadores/:id", (req, res) => {
   const { id } = req.params;
-  const { nome, email } = req.body;
+  const { nome, contato, sacolinhas } = req.body;
 
   const doadorIndex = doadores.findIndex((doador) => doador.id === id);
 
@@ -205,7 +203,7 @@ app.put("/doadores/:id", (req, res) => {
     return res.status(404).json({ message: "Doador não encontrado" });
   }
 
-  doadores[doadorIndex] = { id, nome, email };
+  doadores[doadorIndex] = { id, nome, contato, sacolinhas };
 
   res.json({ message: "Doador atualizado com sucesso", doador: doadores[doadorIndex] });
 });
@@ -227,6 +225,18 @@ app.delete("/doadores/:id", (req, res) => {
 // Rotas para a entidade "Frente Assistida"
 app.get("/frente-assistida", (req, res) => {
   res.json({ frenteAssistida });
+});
+app.get("/frente-assistida/:id", (req, res) => {
+  const { id } = req.params;
+
+  // Encontre a frente assistida com o ID correspondente
+  const frenteEncontrada = frenteAssistida.find((frente) => frente.id === id);
+
+  if (!frenteEncontrada) {
+    return res.status(404).json({ message: "Frente Assistida não encontrada" });
+  }
+
+  res.json({ frenteAssistida: frenteEncontrada });
 });
 app.post("/frente-assistida", (req, res) => {
   const { nome, assistidos } = req.body;
