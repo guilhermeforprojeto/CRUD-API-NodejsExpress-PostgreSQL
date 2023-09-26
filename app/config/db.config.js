@@ -5,7 +5,7 @@ module.exports = {
   DB: "testeAPI",
   dialect: "postgres",
   pool: {
-    max: 50,
+    max: 500,
     min: 0,
     acquire: 30000,
     idle: 10000
