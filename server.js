@@ -4,16 +4,17 @@ const cors = require("cors");
 const { v4: uuidv4 } = require('uuid'); // Importa a função uuidv4 para gerar UUIDs
 const db = require("./app/models");
 const Sacola = db.sacolas
+const Celula = db.celula
 const app = express();
 
 
-// db.sequelize.sync({ force: true }).then(() => {
-//   console.log("Todas tabelas Dropadas e Resicronizado o banco");
-// });
-
-db.sequelize.sync().then(() => {
-  console.log("Tabelas mantidas");
+db.sequelize.sync({ force: true }).then(() => {
+  console.log("Todas tabelas Dropadas e Resicronizado o banco");
 });
+
+// db.sequelize.sync().then(() => {
+//   console.log("Tabelas mantidas");
+// });
 
 
 var corsOptions = {
@@ -24,13 +25,12 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-let sacolas = [];
 let assistidos = [];
 let doadores = [];
 let frenteAssistida = [];
 
 app.get("/", (req, res) => {
-  res.json({ message: "Bem-vindo à Sacolinhas Happy Day 2023 - Bola de Neve Church." });
+  res.json({ message: "Bem-vindo ao Backend  das Sacolinhas Happy Day 2023 - Bola de Neve Church." });
 });
 
 // Rotas para a entidade "Sacolas"
@@ -288,4 +288,118 @@ app.delete("/frente-assistida/:id", (req, res) => {
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`O servidor está rodando na porta ${PORT}.`);
+});
+
+
+
+// Rotas para a entidade "Celulas"
+// Rotas para a entidade "Celulas"
+
+// Rotas para a entidade "Celulas"
+// Rotas para a entidade "Celulas"
+
+// Rotas para a entidade "Celulas"
+// Rotas para a entidade "Celulas"
+app.get("/celulas", (req, res) => {
+  // Use o modelo Celula do Sequelize para buscar todas as celulas no banco de dados
+  Celula.findAll()
+    .then((celulas) => {
+      // Converta os dados retornados pelo Sequelize em um array JSON
+      const celulasJSON = celulas.map((celula) => celula.toJSON());
+
+      // Retorne os dados como resposta
+      res.json({ celulas: celulasJSON });
+    })
+    .catch((error) => {
+      console.error("Erro ao buscar celulas:", error);
+      res.status(500).json({ message: "Erro ao buscar celulas" });
+    });
+});
+
+// Rota POST para criar uma celula
+app.post("/celulas", async (req, res) => {
+  const { nome, nomeLider, contatoLider, obs } = req.body;
+
+  try {
+    // Verifique se já existe uma célula com o mesmo código
+    const celulaExistente = await Celula.findOne({ where: { nome } });
+
+    if (celulaExistente) {
+      return res.status(400).json({ message: "Código " + nome + " já foi cadastrado" });
+    }
+    const id = uuidv4();
+    // Crie uma nova instância do modelo Celulas com os dados fornecidos,
+    // incluindo um UUID gerado automaticamente.
+    const novaCelula = await Celula.create({
+      id: id, // Gere um UUID
+      nome,
+      nomeLider,
+      contatoLider,
+      obs,
+    });
+
+    return res.status(201).json({ message: "Célula criada com sucesso", celula: novaCelula });
+  } catch (error) {
+    console.error("Erro ao criar célula:", error);
+    return res.status(500).json({ message: "Erro ao criar célula" });
+  }
+});
+
+// Rota PUT para atualizar uma celula existente
+app.put("/celulas/:id", async (req, res) => {
+  const { id } = req.params;
+  const {
+    nome,
+    nomeLider,
+    contatoLider,
+    obs,
+  } = req.body;
+
+  try {
+    // Encontre a celula pelo ID
+    const celula = await Celula.findByPk(id);
+
+    if (!celula) {
+      return res.status(404).json({ message: "Celula não encontrada" });
+    }
+
+    // Encontre a frente assistida associada à celula
+    const frenteAssistida = await FrenteAssistida.findByPk(celula.nome);
+
+    if (!frenteAssistida) {
+      return res.status(404).json({ message: "Frente assistida não encontrada" });
+    }
+
+    // Atualize os campos da celula
+    celula.nome = nome;
+    celula.nomeLider = nomeLider;
+    celula.contatoLider = contatoLider;
+    celula.obs = obs;
+
+    // Salve a celula atualizada no banco de dados
+    await celula.save();
+
+    // Retorne uma resposta ao cliente
+    return res.json({ message: "Celula atualizada com sucesso", celula: nome });
+  } catch (error) {
+    console.error("Erro ao atualizar celula:", error);
+    return res.status(500).json({ message: "Erro ao atualizar celula" });
+  }
+})
+app.delete("/celulas/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Encontre a celula pelo ID
+    const celula = await Celula.findByPk(id);
+    if (!celula) {
+      return res.status(404).json({ message: "Celula não encontrada" });
+    }
+    // Exclua a celula do banco de dados
+    await celula.destroy();
+    return res.json({ message: "Celula excluída com sucesso" });
+  } catch (error) {
+    console.error("Erro ao excluir celula:", error);
+    return res.status(500).json({ message: "Erro ao excluir celula" });
+  }
 });
