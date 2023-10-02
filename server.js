@@ -186,16 +186,16 @@ app.get("/doadores", (req, res) => {
 });
 
 app.post("/doadores", (req, res) => {
-  const { nome, contato, sacolinhas } = req.body;
+  const { status, nome, contato, sacolinhas, obs } = req.body;
   const id = uuidv4(); // Gera um UUID único
-  const novoDoador = { id, nome, contato, sacolinhas };
+  const novoDoador = { id, status, nome, contato, sacolinhas, obs };
   doadores.push(novoDoador);
   res.status(201).json({ message: "Doador criado com sucesso", doador: novoDoador });
 });
 
 app.put("/doadores/:id", (req, res) => {
   const { id } = req.params;
-  const { nome, contato, sacolinhas } = req.body;
+  const { status, nome, contato, sacolinhas, obs } = req.body;
 
   const doadorIndex = doadores.findIndex((doador) => doador.id === id);
 
@@ -203,7 +203,7 @@ app.put("/doadores/:id", (req, res) => {
     return res.status(404).json({ message: "Doador não encontrado" });
   }
 
-  doadores[doadorIndex] = { id, nome, contato, sacolinhas };
+  doadores[doadorIndex] = { id, status, nome, contato, sacolinhas, obs };
 
   res.json({ message: "Doador atualizado com sucesso", doador: doadores[doadorIndex] });
 });

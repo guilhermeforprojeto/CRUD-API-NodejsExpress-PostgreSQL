@@ -20,8 +20,7 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 db.sacolas = require("./sacolas.js")(sequelize, Sequelize);
-
-
 db.frenteAss = require("./frenteAss.js")(sequelize, Sequelize);
+db.doadores = require("./doadores.js")(sequelize, Sequelize);
 
 module.exports = db;
