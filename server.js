@@ -8,13 +8,13 @@ const Celula = db.celula
 const app = express();
 
 
-// db.sequelize.sync({ force: true }).then(() => {
-//   console.log("Todas tabelas Dropadas e Resicronizado o banco");
-// });
-
-db.sequelize.sync().then(() => {
-  console.log("Tabelas mantidas");
+db.sequelize.sync({ force: true }).then(() => {
+  console.log("Todas tabelas Dropadas e Resicronizado o banco");
 });
+
+// db.sequelize.sync().then(() => {
+//   console.log("Tabelas mantidas");
+// });
 
 
 var corsOptions = {
