@@ -1,36 +1,21 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require('uuid'); // Importa a função uuidv4 para gerar UUIDs
 const db = require("./app/models");
-const Sacola = db.sacolas;
-const Celula = db.celula;
+const Sacola = db.sacolas
+const Celula = db.celula
 const app = express();
 
-// Verifique a variável de ambiente NODE_ENV para determinar se estamos em produção
-const isProduction = process.env.NODE_ENV === 'production';
 
-if (isProduction) {
-  // Configuração para produção com HTTPS
-  const https = require('https');
-  const fs = require('fs');
+// db.sequelize.sync({ force: true }).then(() => {
+//   console.log("Todas tabelas Dropadas e Resicronizado o banco");
+// });
 
-  const options = {
-    key: fs.readFileSync('key.pem'),   // Certificado privado
-    cert: fs.readFileSync('cert.pem')  // Certificado público
-  };
+db.sequelize.sync().then(() => {
+  console.log("Tabelas mantidas");
+});
 
-  const server = https.createServer(options, app);
-
-  server.listen(443, () => {
-    console.log("Servidor HTTPS em execução na porta 443");
-  });
-} else {
-  // Configuração para desenvolvimento com HTTP
-
-}
-
-// Resto do seu código, incluindo configurações comuns para ambas as opções
 
 var corsOptions = {
   origin: "*"
@@ -300,8 +285,9 @@ app.delete("/frente-assistida/:id", (req, res) => {
   res.json({ message: "Frente Assistida excluída com sucesso" });
 });
 
-app.listen(8080, () => {
-  console.log("Servidor HTTP em execução na porta 8080");
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`O servidor está rodando na porta ${PORT}.`);
 });
 
 
