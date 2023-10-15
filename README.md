@@ -103,3 +103,15 @@ module.exports = {
   },
 };
 ```
+- Configure a Variavel de ambiente, no caso na produção estou usando HTTPS e local HTTP então escolha a opção que atenda certa:
+
+- - ```bash
+      export  NODE_ENV=development
+      ```
+- - ```bash  
+      export NODE_ENV=production
+    ```
+
+
+
+
