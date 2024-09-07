@@ -202,17 +202,35 @@ app.get("/doadores", (req, res) => {
   res.json({ doadores });
 });
 
-app.post("/doadores", (req, res) => {
+app.post("/doadores", async (req, res) => {
   const { status, nome, contato, sacolinhas, obs } = req.body;
   const id = uuidv4(); // Gera um UUID único
   const novoDoador = { id, status, nome, contato, sacolinhas, obs };
-  doadores.push(novoDoador);
-  AudioParamMap.get(sacolas)
-  res.status(201).json({ message: "Doador criado com sucesso", doador: novoDoador });
-  console.log(novoDoador.sacolinhas + " CHEGOU AGORA!!!!")
-  // app.put("/sacolas", (req, res) => {
 
+  try {
+    // Simula o armazenamento do doador
+    doadores.push(novoDoador);
+
+    console.log(novoDoador.sacolinhas + " CHEGOU AGORA!!!!");
+
+    // 1. Verifica se há sacolinhas associadas ao doador
+    if (sacolinhas && sacolinhas.length > 0) {
+      // 2. Atualiza o status das sacolinhas no banco de dados para "Com Doador"
+      await Sacola.update(
+        { status: "Com Doador" }, // Novo status
+        { where: { codigo: sacolinhas } } // Atualiza apenas as sacolinhas com os códigos fornecidos
+      );
+      console.log(`${sacolinhas.length} sacolinhas atualizadas para 'Com Doador'`);
+    }
+
+    // 3. Retorna a resposta de sucesso com o doador criado
+    res.status(201).json({ message: "Doador criado com sucesso", doador: novoDoador });
+  } catch (error) {
+    console.error("Erro ao criar doador ou atualizar sacolinhas:", error);
+    res.status(500).json({ message: "Erro ao criar doador ou atualizar sacolinhas" });
+  }
 });
+
 
 
 
