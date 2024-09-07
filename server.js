@@ -249,18 +249,38 @@ app.put("/doadores/:id", (req, res) => {
   res.json({ message: "Doador atualizado com sucesso", doador: doadores[doadorIndex] });
 });
 
-app.delete("/doadores/:id", (req, res) => {
+app.delete("/doadores/:id", async (req, res) => {
   const { id } = req.params;
 
+  // Encontre o índice do doador na lista
   const doadorIndex = doadores.findIndex((doador) => doador.id === id);
 
   if (doadorIndex === -1) {
     return res.status(404).json({ message: "Doador não encontrado" });
   }
 
-  doadores.splice(doadorIndex, 1);
+  // Pegue as sacolinhas associadas ao doador antes de removê-lo
+  const sacolinhas = doadores[doadorIndex].sacolinhas;
 
-  res.json({ message: "Doador excluído com sucesso" });
+  try {
+    // Atualize o status das sacolinhas para "Registrada"
+    if (sacolinhas && sacolinhas.length > 0) {
+      await Sacola.update(
+        { status: "Registrada" }, // Novo status
+        { where: { codigo: sacolinhas } } // Atualiza apenas as sacolinhas com os códigos fornecidos
+      );
+      console.log(`${sacolinhas.length} sacolinhas atualizadas para 'Registrada'`);
+    }
+
+    // Remova o doador da lista
+    doadores.splice(doadorIndex, 1);
+
+    // Resposta de sucesso
+    res.json({ message: "Doador excluído com sucesso" });
+  } catch (error) {
+    console.error("Erro ao excluir doador ou atualizar sacolinhas:", error);
+    res.status(500).json({ message: "Erro ao excluir doador ou atualizar sacolinhas" });
+  }
 });
 
 // Rotas para a entidade "Frente Assistida"
