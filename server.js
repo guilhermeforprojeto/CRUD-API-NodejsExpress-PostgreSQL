@@ -10,10 +10,12 @@ const app = express();
 
 // db.sequelize.sync({ force: true }).then(() => {
 //   console.log("Todas tabelas Dropadas e Resicronizado o banco");
+//console.log(`O servidor está rodando na porta ${PORT}.`);
 // });
 
 db.sequelize.sync().then(() => {
   console.log("Tabelas mantidas");
+  console.log(`O servidor está rodando na porta ${PORT}.`);
 });
 
 
@@ -35,13 +37,27 @@ app.get("/", (req, res) => {
 
 // Rotas para a entidade "Sacolas"
 app.get("/sacolas", (req, res) => {
-  // Use o modelo Sacola do Sequelize para buscar todas as sacolas no banco de dados
-  Sacola.findAll()
-    .then((sacolas) => {
-      // Converta os dados retornados pelo Sequelize em um array JSON
-      const sacolasJSON = sacolas.map((sacola) => sacola.toJSON());
+  // Extrair os parâmetros da query string
+  const { codigo, status, assistentesocial, nome, doador } = req.query;
 
-      // Retorne os dados como resposta
+  // Criar um objeto "where" dinâmico para filtrar os campos conforme os parâmetros fornecidos
+  const whereClause = {};
+
+  if (codigo) whereClause.codigo = codigo;
+  if (status) whereClause.status = status;
+  if (assistentesocial) whereClause.assistentesocial = assistentesocial;
+  if (nome) whereClause.nome = nome;
+  if (doador) whereClause.doador = doador;
+
+  // Usar o Sequelize para buscar com base nos filtros fornecidos
+  Sacola.findAll({ where: whereClause })
+    .then((sacolas) => {
+      // Se não houver sacolas, retorna um array vazio
+      if (sacolas.length === 0) {
+        return res.status(404).json({ message: "Nenhuma sacola encontrada." });
+      }
+      // Convertendo os dados retornados pelo Sequelize para JSON
+      const sacolasJSON = sacolas.map((sacola) => sacola.toJSON());
       res.json({ sacolas: sacolasJSON });
     })
     .catch((error) => {
@@ -49,6 +65,7 @@ app.get("/sacolas", (req, res) => {
       res.status(500).json({ message: "Erro ao buscar sacolas" });
     });
 });
+
 
 //##POST 
 //##POST 
@@ -190,8 +207,14 @@ app.post("/doadores", (req, res) => {
   const id = uuidv4(); // Gera um UUID único
   const novoDoador = { id, status, nome, contato, sacolinhas, obs };
   doadores.push(novoDoador);
+  AudioParamMap.get(sacolas)
   res.status(201).json({ message: "Doador criado com sucesso", doador: novoDoador });
+  console.log(novoDoador.sacolinhas + " CHEGOU AGORA!!!!")
+  // app.put("/sacolas", (req, res) => {
+
 });
+
+
 
 app.put("/doadores/:id", (req, res) => {
   const { id } = req.params;
